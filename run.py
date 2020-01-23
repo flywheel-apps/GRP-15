@@ -132,7 +132,7 @@ def generate_project_template(gear_context, project, outname=None):
     template = dict()
     template['rules'] = list()
 
-    log.info(f'Generating template for {project.group}/{project.label}')
+    log.info(f'Generating template from source project: {project.group}/{project.label} [id={project.id}]')
 
     rules = [ r.to_dict() for r in fw.get_project_rules(project.id) ]
     template['permissions'] = [ p.to_dict() for p in project.permissions ]
@@ -384,6 +384,12 @@ def apply_template_to_project(gear_context, project, template, fixed_input_archi
                 for ar in range(0, len(rule['any'])):
                     if not rule['any'][ar]['regex']:
                         rule['any'][ar]['regex'] = False
+            if rule['_not']:
+                log.debug('RULE NOT')
+                for ar in range(0, len(rule['_not'])):
+                    if not rule['_not'][ar]['regex']:
+                        log.debug('setting to false...')
+                        rule['_not'][ar]['regex'] = False
 
             # Forumlate the gear_rule
             gear_rules.append(flywheel.models.rule.Rule(project_id=project.id,
@@ -421,7 +427,7 @@ def apply_template_to_project(gear_context, project, template, fixed_input_archi
             except flywheel.ApiException as err:
                 log.error(f'API error during gear rule creation: {err.status} -- {err.reason} -- {err.detail}. \nBailing out!')
                 log.debug(gear_rule)
-                raise
+                os._exit(1)
         log.info('...GEAR RULES APPLIED TO PROJECT!')
     else:
         log.info('NOT APPLYING GEAR RULES TO PROJECT! (config.gear_fules=False)')
@@ -492,8 +498,8 @@ if __name__ == "__main__":
 
         gear_context.init_logging()
         log.setLevel(gear_context.config['gear-log-level'])
-        log.info(gear_context.destination)
-        log.info(gear_context.config)
+        log.info('Destination: {}'.format(gear_context.destination))
+        log.info('Config: {}'.format(gear_context.config))
 
         source_project = get_valid_project(gear_context)
 
