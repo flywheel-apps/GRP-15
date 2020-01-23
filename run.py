@@ -127,7 +127,7 @@ def generate_project_template(gear_context, project, outname=None):
     fw = gear_context.client
 
     if not outname:
-        outname = os.path.join(gear_context.output_dir, 'project_settings_template_{}.json'.format(project.id))
+        outname = os.path.join(gear_context.output_dir, 'project-settings_template_{}.json'.format(project.id))
 
     template = dict()
     template['rules'] = list()
@@ -189,7 +189,7 @@ def download_fixed_inputs(gear_context, template, project_id):
     tdirpath = tempfile.mkdtemp()
 
     # Create the archive directory, which will be zipped
-    content_dir = os.path.join(tdirpath, 'project_settings_fixed_inputs_{}'.format(project_id))
+    content_dir = os.path.join(tdirpath, 'project-settings_fixed-inputs_{}'.format(project_id))
     os.mkdir(content_dir)
 
     downloaded = list() # List of files that are to be downloaded
@@ -246,7 +246,7 @@ def create_project(gear_context):
             return fw.get_project(project.id)
         else:
             log.warning(f'Project {group_id}/{project_label} (id={project.id}) found! apply_to_existing_project flag is False, bailing out!')
-            os.sys.exit(1)
+            os._exit(1)
     except:
         pass
 
@@ -258,7 +258,7 @@ def create_project(gear_context):
 
     except flywheel.ApiException as err:
         log.error(f'API error during project creation: {err.status} -- {err.reason}')
-        os.sys.exit(1)
+        os._exit(1)
 
     return project
 
@@ -446,7 +446,7 @@ def get_valid_project(gear_context):
     if gear_context.destination['type'] != "analysis":
         msg = 'Destination must be an analysis!'
         log.error(msg)
-        os.sys.exit(1)
+        os._exit(1)
 
     analysis = gear_context.client.get_analysis(gear_context.destination['id'])
 
@@ -454,7 +454,7 @@ def get_valid_project(gear_context):
         project = gear_context.client.get_project(analysis.parent['id'])
     except flywheel.ApiException as err:
         log.error(f'Could not retrieve source project. This Gear must be run at the project level!: {err.status} -- {err.reason}. \nBailing out!')
-        os.sys.exit(1)
+        os._exit(1)
 
     return project
 
@@ -530,4 +530,4 @@ if __name__ == "__main__":
             apply_template_to_project(gear_context, clone_project, template, fixed_input_archive)
 
     log.info('Done!')
-    os.sys.exit(0)
+    os._exit(0)
