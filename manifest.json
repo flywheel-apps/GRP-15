@@ -1,0 +1,92 @@
+{
+  "name": "grp-15-project-settings",
+  "label": "GRP-15: Project Settings Import and Export",
+  "description": "For a given project, clone the permissions and gear rules to a new project, or export the settings for import to another project.",
+  "author": "Flywheel SSE",
+  "maintainer": "Flywheel <support@flywheel.io>",
+  "license": "MIT",
+  "source": "https://github.com/flywheel-apps/GRP-15",
+  "url": "https://github.com/flywheel-apps/GRP-15",
+  "version": "0.0.1",
+  "environment": {},
+  "custom": {
+    "gear-builder": {
+      "category": "analysis",
+      "image": "flywheel/grp-15-project-settings:0.0.1"
+    },
+    "flywheel": {
+      "suite": "Data Export"
+    }
+  },
+  "inputs": {
+    "key": {
+      "base": "api-key",
+      "description": "User's API Key",
+      "read-only": true
+    },
+    "template": {
+      "base": "file",
+      "description": "Template json file from source project. If this is provided to this gear at runtime, the template will be applied to this project.",
+      "optional": true,
+      "type": {
+        "enum": [
+          "source code"
+        ]
+      }
+    },
+    "fixed_inputs": {
+      "base": "file",
+      "description": "Archive containing fixed input files. These files will be uploaded to the cloned project and referenced by the gear rules. If this is provided to this gear at runtime, the files will be applied to this project.",
+      "optional": true,
+      "type": {
+        "enum": [
+          "archive"
+        ]
+      }
+    }
+  },
+  "config": {
+    "clone_project_path": {
+      "optional": true,
+      "description": "Path for new project to be created. Format should be <group_id>/<project_name>. If <clone_project_path> provided a new project will be created. If the project exists, the 'apply_to_existing_project' option must be used to update the project settings. If this option is omitted settings will be exported.",
+      "type": "string"
+    },
+    "permissions": {
+      "default": true,
+      "description": "Export/Import Permissions.",
+      "type": "boolean"
+    },
+    "gear_rules": {
+      "default": true,
+      "description": "Export/Import Gear Rules and related fixed inputs (if applicable).",
+      "type": "boolean"
+    },
+    "apply_to_existing_project": {
+      "default": true,
+      "description": "If a project already exists, apply settings and rules to that project.",
+      "type": "boolean"
+    },
+    "existing_rules": {
+      "default": "REPLACE",
+      "description": "If a project already has a rule with the same name as a template rule, this option will determine what happens with those rules. Options are: 'REPLACE' (replace the existing rule with the tempalte rule), 'APPEND' (add template rule - may result in duplicate rules), 'SKIP' (don't add the matching tempalte rule).",
+      "enum": [
+        "REPLACE",
+        "APPEND",
+        "SKIP"
+      ],
+      "type": "string"
+    },
+    "gear-log-level": {
+      "default": "INFO",
+      "description": "Gear Log verbosity level (ERROR|WARNING|INFO|DEBUG)",
+      "type": "string",
+      "enum": [
+        "ERROR",
+        "WARNING",
+        "INFO",
+        "DEBUG"
+      ]
+    }
+  },
+  "command": "python3 run.py"
+}
