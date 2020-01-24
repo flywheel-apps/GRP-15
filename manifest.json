@@ -49,7 +49,8 @@
     "clone_project_path": {
       "optional": true,
       "description": "Path for new project to be created. Format should be <group_id>/<project_name>. If <clone_project_path> provided a new project will be created. If the project exists, the 'apply_to_existing_project' option must be used to update the project settings. If this option is omitted settings will be exported.",
-      "type": "string"
+      "type": "string",
+      "pattern": "^[a-z0-9\\-]+/.+$"
     },
     "permissions": {
       "default": true,
