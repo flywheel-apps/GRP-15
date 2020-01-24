@@ -257,7 +257,7 @@ def create_project(gear_context):
         log.info(f'Done. Created new project: group={group_id}, label={project_label}, id={project.id}')
 
     except flywheel.ApiException as err:
-        log.error(f'API error during project creation: {err.status} -- {err.reason}')
+        log.error(f'API error during project creation: {err.status} -- {err.reason} -- {err.detail}')
         os._exit(1)
 
     return project
@@ -309,7 +309,7 @@ def apply_template_to_project(gear_context, project, template, fixed_input_archi
             rule fixed inputs. Defaults to None.
 
     Returns:
-        The return value. True for success, False otherwise.
+        int: 0 for success, 1 otherwise.
 
     """
 
@@ -332,6 +332,8 @@ def apply_template_to_project(gear_context, project, template, fixed_input_archi
 
     # Handle Fixed Inputs
     if gear_context.config.get('gear_rules') and template.get('rules'):
+
+        EXIT_STATUS = 0
         log.info('APPLYING GEAR RULES TO PROJECT...')
         if fixed_input_archive:
             log.info('Unpacking and uploading fixed gear inputs...')
@@ -358,6 +360,7 @@ def apply_template_to_project(gear_context, project, template, fixed_input_archi
                 except:
                     log.error('{}:{} was not found on this system! Please install it!'.format(rule['gear']['name'], rule['gear']['version']))
                     log.warning('Skipping this rule! {}'.format(rule['name']))
+                    EXIT_STATUS = 1
                     continue
 
             rule['project_id'] = project.id
@@ -432,7 +435,7 @@ def apply_template_to_project(gear_context, project, template, fixed_input_archi
     else:
         log.info('NOT APPLYING GEAR RULES TO PROJECT! (config.gear_fules=False)')
 
-    return True
+    return EXIT_STATUS
 
 
 def get_valid_project(gear_context):
@@ -459,7 +462,7 @@ def get_valid_project(gear_context):
     try:
         project = gear_context.client.get_project(analysis.parent['id'])
     except flywheel.ApiException as err:
-        log.error(f'Could not retrieve source project. This Gear must be run at the project level!: {err.status} -- {err.reason}. \nBailing out!')
+        log.error(f'Could not retrieve source project. This Gear must be run at the project level!: {err.status} -- {err.reason} -- {err.detail}. \nBailing out!')
         os._exit(1)
 
     return project
@@ -493,6 +496,8 @@ if __name__ == "__main__":
                           # When this is not true - because there is no clone
                           # project or input provided - only the template
                           # and fixed input archive will be generated.
+
+    EXIT_STATUS = 0
 
     with flywheel.gear_context.GearContext() as gear_context:
 
@@ -533,7 +538,10 @@ if __name__ == "__main__":
             APPLY_TEMPLATE = False
 
         if APPLY_TEMPLATE:
-            apply_template_to_project(gear_context, clone_project, template, fixed_input_archive)
+            EXIT_STATUS = apply_template_to_project(gear_context, clone_project, template, fixed_input_archive)
 
-    log.info('Done!')
-    os._exit(0)
+    if EXIT_STATUS == 0:
+        log.info('Done!')
+    else:
+        log.warning('Exiting with Errors!')
+    os._exit(EXIT_STATUS)
