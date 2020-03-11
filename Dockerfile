@@ -1,6 +1,8 @@
 FROM python:3.8-slim-buster
 
-RUN pip install flywheel-sdk==10.7.0 glob2
+RUN pip install \
+    flywheel-sdk==11.2.0 \
+    glob2
 
 ENV FLYWHEEL /flywheel/v0
 WORKDIR ${FLYWHEEL}
