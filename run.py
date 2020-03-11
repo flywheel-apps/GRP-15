@@ -135,7 +135,12 @@ def generate_project_template(gear_context, project, outname=None):
     log.info(f'Generating template from source project: {project.group}/{project.label} [id={project.id}]')
 
     rules = [ r.to_dict() for r in fw.get_project_rules(project.id) ]
-    template['permissions'] = [ p.to_dict() for p in project.permissions ]
+
+    if gear_context.config.get('permissions'):
+        template['permissions'] = [ p.to_dict() for p in project.permissions ]
+    else:
+        template['permissions'] = list()
+
 
     for rule in rules:
         # Here we grab the gear info for easy lookup later on. Note that it will
