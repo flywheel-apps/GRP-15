@@ -318,13 +318,14 @@ def apply_template_to_project(gear_context, project, template, fixed_input_archi
     # Permissions
     if gear_context.config.get('permissions') and template.get('permissions'):
         log.info('APPLYING PERMISSIONS TO PROJECT...')
+        all_users = [ x.id for x in fw.get_all_users() ]
         users = [ x.id for x in project.permissions ]
         for permission in template['permissions']:
-            if permission['id'] not in users:
+            if (permission['id'] not in users) and (permission['id'] in all_users):
                 log.info(' Adding {} to {}'.format(permission['id'], project.label))
                 project.add_permission(flywheel.Permission(permission['id'], permission['access']))
             else:
-                log.debug(' {} already has permissions in {}'.format(permission['id'], project.label))
+                log.warning(' {} will not be added to {}. The user is either already in the project or not a valid user.'.format(permission['id'], project.label))
         log.info('...PERMISSIONS APPLIED')
     else:
         log.info('NOT APPLYING PERMISSIONS TO PROJECT!')
