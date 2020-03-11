@@ -53,7 +53,7 @@
       "pattern": "^[a-z0-9\\-]+/.+$"
     },
     "permissions": {
-      "default": true,
+      "default": false,
       "description": "Export/Import Permissions.",
       "type": "boolean"
     },
