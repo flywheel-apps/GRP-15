@@ -1,13 +1,13 @@
 {
   "name": "grp-15-project-settings",
   "label": "GRP-15: Project Settings Import and Export",
-  "description": "For a given project, clone the permissions and gear rules to a new project, or export the settings for import to another project.",
+  "description": "Export/Import project settings (gear rules with inputs, and permissions). By default this Gear will export a given project's gear rules (and related inputs) for import to a new project. If configured, this Gear also has the ability to initilize a new project, or apply the settings to an existing project. Exported settings can be imported across instances. See README in the source code repository for more information.",
   "author": "Flywheel SSE",
   "maintainer": "Flywheel <support@flywheel.io>",
   "license": "MIT",
   "source": "https://github.com/flywheel-apps/GRP-15",
   "url": "https://github.com/flywheel-apps/GRP-15",
-  "version": "1.0.0_rc3",
+  "version": "1.0.0_rc5",
   "environment": {},
   "custom": {
     "gear-builder": {
