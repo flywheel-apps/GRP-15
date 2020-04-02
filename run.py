@@ -301,7 +301,7 @@ def upload_fixed_inputs(fixed_input_archive, project):
 
 
 def apply_template_to_project(gear_context, project, template, fixed_input_archive=None):
-    """Apply <template> permissions and gear rules to <project>.
+    """Apply default group (defcault) or template permissions, and gear rules to <project>.
 
     Args:
         gear_context (:obj:flywheel.gear_context.GearContext): Flywheel Gear
@@ -321,16 +321,23 @@ def apply_template_to_project(gear_context, project, template, fixed_input_archi
     fw = gear_context.client
 
     # Permissions
-    if gear_context.config.get('permissions') and template.get('permissions'):
+    if (gear_context.config.get('permissions') and template.get('permissions')) or gear_context.config.get('default_group_permissions'):
         log.info('APPLYING PERMISSIONS TO PROJECT...')
         all_users = [ x.id for x in fw.get_all_users() ]
         users = [ x.id for x in project.permissions ]
-        for permission in template['permissions']:
-            if (permission['id'] not in users) and (permission['id'] in all_users):
-                log.info(' Adding {} to {}'.format(permission['id'], project.label))
-                project.add_permission(flywheel.Permission(permission['id'], permission['access']))
+        if gear_context.config.get('default_group_permissions'):
+            log.info(f'Applying default group permissions...')
+            permissions = fw.get_group(project.group).permissions
+        else:
+            permissions = template['permissions']
+        for permission in permissions:
+            if not isinstance(permission, flywheel.models.permission.Permission):
+                permission = flywheel.Permission(permission['id'], permission['access'])
+            if (permission.id not in users) and (permission.id in all_users):
+                log.info(' Adding {} to {}'.format(permission.id, project.label))
+                project.add_permission(flywheel.Permission(permission.id, permission.access))
             else:
-                log.warning(' {} will not be added to {}. The user is either already in the project or not a valid user.'.format(permission['id'], project.label))
+                log.warning(' {} will not be added to {}. The user is either already in the project or not a valid user.'.format(permission.id, project.label))
         log.info('...PERMISSIONS APPLIED')
     else:
         log.info('NOT APPLYING PERMISSIONS TO PROJECT!')

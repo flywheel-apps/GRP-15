@@ -1,6 +1,6 @@
 # GRP-15:  Project Settings Import and Export
 
-For a given project, clone the permissions and gear rules to a new project, or export the settings for import to another project.
+For a given project, clone the gear rules and (optionally) permissions to a project, or export the settings for import to another instance/project.
 
 ## Motivation
 For new projects it can be difficult to replicate existing project configurations. This Gear will run at the project level and generate a new project (locally or via configuration file for external use) with the appropriate gear rules and user permissions.
@@ -37,16 +37,22 @@ For new projects it can be difficult to replicate existing project configuration
   "clone_project_path": {
     "optional": true,
     "description": "Path for new project to be created. Format should be <group_id>/<project_name>. If <clone_project_path> provided a new project will be created. If the project exists, the 'apply_to_existing_project' option must be used to update the project settings. If this option is omitted settings will be exported.",
-    "type": "string"
+    "type": "string",
+    "pattern": "^[a-z0-9\\-]+/.+$"
   },
   "permissions": {
+    "default": false,
+    "description": "Export permissions from origin project and/or import those permissions to the clone project.",
+    "type": "boolean"
+  },
+  "default_group_permissions": {
     "default": true,
-    "description": "Export/Import Permissions",
+    "description": "Applies the clone project's default group permissions to the clone project. This is done by default and will override permissions within the template. If you wish to use the permissions within the template you must set `apply_group_permissions` to `false`, and `permissions` to `true`.",
     "type": "boolean"
   },
   "gear_rules": {
     "default": true,
-    "description": "Export/Import Gear Rules and related fixed inputs (if applicable)",
+    "description": "Export/Import Gear Rules and related fixed inputs (if applicable).",
     "type": "boolean"
   },
   "apply_to_existing_project": {
@@ -84,6 +90,7 @@ For new projects it can be difficult to replicate existing project configuration
 2. `fixed_inputs_<source_project_id>.zip` - An archive consisting of any files referenced by the exported gear rules (if applicable).
 
 ## Usage
+Note that by default `apply_group_permissions` is `true`, which will cause the default group permissions of the clone project to be set upon that project - functionally ignoring any permissions found within the template. If you wish to use the permissions within the template you must set `apply_group_permissions` to `false`, and `permissions` to `true`.
 
 #### Exporting Project Settings - without Project Creation
 To export a project's settings (permissions and gear rules):
