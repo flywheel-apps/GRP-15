@@ -1,6 +1,7 @@
 FROM python:3.8-slim-buster
 
-RUN pip install flywheel-sdk==10.7.0 glob2
+COPY ["requirements.txt", "/opt/requirements.txt"]
+RUN pip install -r /opt/requirements.txt
 
 ENV FLYWHEEL /flywheel/v0
 WORKDIR ${FLYWHEEL}

@@ -1,13 +1,13 @@
 {
   "name": "grp-15-project-settings",
-  "label": "GRP-15: Project Settings Import and Export",
-  "description": "For a given project, clone the permissions and gear rules to a new project, or export the settings for import to another project.",
+  "label": "GRP-15: Project Settings Export/Import",
+  "description": "Export/Import project settings (gear rules with inputs, and permissions). By default this Gear will export a given project's gear rules (and related inputs) for import to a new project. If configured, this Gear also has the ability to initilize a new project, and/or apply the settings to an existing project. Exported settings can also be imported across instances. See README in the source code repository for more information.",
   "author": "Flywheel SSE",
   "maintainer": "Flywheel <support@flywheel.io>",
   "license": "MIT",
   "source": "https://github.com/flywheel-apps/GRP-15",
   "url": "https://github.com/flywheel-apps/GRP-15",
-  "version": "1.0.0_rc3",
+  "version": "1.0.0",
   "environment": {},
   "custom": {
     "gear-builder": {
@@ -53,8 +53,13 @@
       "pattern": "^[a-z0-9\\-]+/.+$"
     },
     "permissions": {
+      "default": false,
+      "description": "Export permissions from origin project and/or import those permissions to the clone project.",
+      "type": "boolean"
+    },
+    "default_group_permissions": {
       "default": true,
-      "description": "Export/Import Permissions.",
+      "description": "Applies the clone project's default group permissions to the clone project. This is done by default and will override permissions within the template. If you wish to use the permissions within the template you must set `apply_group_permissions` to `false`, and `permissions` to `true`.",
       "type": "boolean"
     },
     "gear_rules": {
