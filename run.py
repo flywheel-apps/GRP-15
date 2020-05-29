@@ -328,9 +328,24 @@ def apply_template_to_project(gear_context, project, template, fixed_input_archi
         if gear_context.config.get('default_group_permissions'):
             log.info(f'Applying default group permissions...')
             permissions = fw.get_group(project.group).permissions
+            
+            perm_lookup = fw.get_all_roles()
+            new_perm_list = []
+            
+            for perm in permissions:
+                rix = [r.label for r in perm_lookup].index(perm.access)
+                role_id = perm_lookup[rix].id
+                new_perm_list.append(flywheel.RolesRoleAssignment(perm.id, role_id))
+
+            permissions = new_perm_list
+            
+            
         else:
             permissions = template['permissions']
         for permission in permissions:
+            
+            log.debug(pp(permission))
+            
             if not isinstance(permission,  flywheel.models.roles_role_assignment.RolesRoleAssignment):
                 permission = flywheel.RolesRoleAssignment(permission['id'], permission['role_ids'])
             if (permission.id not in users) and (permission.id in all_users):

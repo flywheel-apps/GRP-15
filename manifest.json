@@ -7,7 +7,7 @@
   "license": "MIT",
   "source": "https://github.com/flywheel-apps/GRP-15",
   "url": "https://github.com/flywheel-apps/GRP-15",
-  "version": "1.0.0",
+  "version": "2.0.0_dev1",
   "environment": {},
   "custom": {
     "gear-builder": {
