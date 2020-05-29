@@ -89,7 +89,7 @@ def generate_project_template(gear_context, project, outname=None):
               "permissions": [
                 {
                   "id": "<user_id>",
-                  "access": "<access_rights>"
+                  "role_ids": "[ <access_rights> ]"
                 }
               ],
               "rules": [
@@ -137,7 +137,7 @@ def generate_project_template(gear_context, project, outname=None):
     rules = [ r.to_dict() for r in fw.get_project_rules(project.id) ]
 
     if gear_context.config.get('permissions'):
-        template['permissions'] = [ p.to_dict() for p in project.permissions ]
+        template['permissions'] = [p.to_dict() for p in project.permissions ]
     else:
         template['permissions'] = list()
 
@@ -331,11 +331,11 @@ def apply_template_to_project(gear_context, project, template, fixed_input_archi
         else:
             permissions = template['permissions']
         for permission in permissions:
-            if not isinstance(permission, flywheel.models.permission.Permission):
-                permission = flywheel.Permission(permission['id'], permission['access'])
+            if not isinstance(permission,  flywheel.models.roles_role_assignment.RolesRoleAssignment):
+                permission = flywheel.RolesRoleAssignment(permission['id'], permission['role_ids'])
             if (permission.id not in users) and (permission.id in all_users):
                 log.info(' Adding {} to {}'.format(permission.id, project.label))
-                project.add_permission(flywheel.Permission(permission.id, permission.access))
+                project.add_permission(flywheel.RolesRoleAssignment(permission.id, permission.role_ids))
             else:
                 log.warning(' {} will not be added to {}. The user is either already in the project or not a valid user.'.format(permission.id, project.label))
         log.info('...PERMISSIONS APPLIED')
