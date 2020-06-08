@@ -319,7 +319,8 @@ def apply_template_to_project(gear_context, project, template, fixed_input_archi
     """
 
     fw = gear_context.client
-
+    EXIT_STATUS = 0
+    
     # Permissions
     if (gear_context.config.get('permissions') and template.get('permissions')) or gear_context.config.get('default_group_permissions'):
         log.info('APPLYING PERMISSIONS TO PROJECT...')
@@ -329,13 +330,34 @@ def apply_template_to_project(gear_context, project, template, fixed_input_archi
             log.info(f'Applying default group permissions...')
             permissions = fw.get_group(project.group).permissions
             
-            perm_lookup = fw.get_all_roles()
+            role_lookup = fw.get_all_roles()
             new_perm_list = []
             
-            for perm in permissions:
-                rix = [r.label for r in perm_lookup].index(perm.access)
-                role_id = perm_lookup[rix].id
-                new_perm_list.append(flywheel.RolesRoleAssignment(perm.id, role_id))
+            # Group roles in flywheel fall broadly under three categories:
+            # 1. Admin: can read and write data, and can create and remove data/projects
+            # 2. Read/write: can read and write existing data
+            # 3. Read only: Can only view existing data
+            #
+            # This is obviously not a perfect 1:1 for all the roles now available to projects.
+            # If This gear is run with "default_group_permissions" set to "true", it's going to try
+            # to set the default *group* permissions as the *project* permissions.  However, since
+            # Group permissions don't specify role actins, we have to search through the project 
+            # roles and find the ones that match the default "admin", "read/write", and "read only".
+            # In the roles, there is a "default_flywheel_role" key, that is either "admin", "ro", or
+            # "rw".  Match the GROUP role to the PROJECT permission using this key
+            
+            for group_perm in permissions:
+                # Use list comprehension for efficient iteration
+                group_role = [role
+                              for role in role_lookup
+                              if role.default_flywheel_role == group_perm.access]
+                
+                if len(group_role) > 1:
+                    log.warning(f"MULTIPLE DEFAULT FLYWHEEL ROLES FOR {group_perm.access}")
+                
+                role_id = [r.id for r in group_role]
+                    
+                new_perm_list.append(flywheel.RolesRoleAssignment(group_perm.id, role_id))
 
             permissions = new_perm_list
             
@@ -361,7 +383,7 @@ def apply_template_to_project(gear_context, project, template, fixed_input_archi
     # Handle Fixed Inputs
     if gear_context.config.get('gear_rules') and template.get('rules'):
 
-        EXIT_STATUS = 0
+        
         log.info('APPLYING GEAR RULES TO PROJECT...')
         if fixed_input_archive:
             log.info('Unpacking and uploading fixed gear inputs...')
