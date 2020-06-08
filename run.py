@@ -328,51 +328,20 @@ def apply_template_to_project(gear_context, project, template, fixed_input_archi
         users = [ x.id for x in project.permissions ]
         if gear_context.config.get('default_group_permissions'):
             log.info(f'Applying default group permissions...')
-            permissions = fw.get_group(project.group).permissions
-            
-            role_lookup = fw.get_all_roles()
-            new_perm_list = []
-            
-            # Group roles in flywheel fall broadly under three categories:
-            # 1. Admin: can read and write data, and can create and remove data/projects
-            # 2. Read/write: can read and write existing data
-            # 3. Read only: Can only view existing data
-            #
-            # This is obviously not a perfect 1:1 for all the roles now available to projects.
-            # If This gear is run with "default_group_permissions" set to "true", it's going to try
-            # to set the default *group* permissions as the *project* permissions.  However, since
-            # Group permissions don't specify role actins, we have to search through the project 
-            # roles and find the ones that match the default "admin", "read/write", and "read only".
-            # In the roles, there is a "default_flywheel_role" key, that is either "admin", "ro", or
-            # "rw".  Match the GROUP role to the PROJECT permission using this key
-            
-            for group_perm in permissions:
-                # Use list comprehension for efficient iteration
-                group_role = [role
-                              for role in role_lookup
-                              if role.default_flywheel_role == group_perm.access]
-                
-                if len(group_role) > 1:
-                    log.warning(f"MULTIPLE DEFAULT FLYWHEEL ROLES FOR {group_perm.access}")
-                
-                role_id = [r.id for r in group_role]
-                    
-                new_perm_list.append(flywheel.RolesRoleAssignment(group_perm.id, role_id))
-
-            permissions = new_perm_list
-            
+            permissions = fw.get_group(project.group).permissions_template
             
         else:
             permissions = template['permissions']
+            
         for permission in permissions:
             
             log.debug(pp(permission))
             
-            if not isinstance(permission,  flywheel.models.roles_role_assignment.RolesRoleAssignment):
+            if not isinstance(permission, flywheel.models.roles_role_assignment.RolesRoleAssignment):
                 permission = flywheel.RolesRoleAssignment(permission['id'], permission['role_ids'])
             if (permission.id not in users) and (permission.id in all_users):
                 log.info(' Adding {} to {}'.format(permission.id, project.label))
-                project.add_permission(flywheel.RolesRoleAssignment(permission.id, permission.role_ids))
+                project.add_permission(permission)
             else:
                 log.warning(' {} will not be added to {}. The user is either already in the project or not a valid user.'.format(permission.id, project.label))
         log.info('...PERMISSIONS APPLIED')

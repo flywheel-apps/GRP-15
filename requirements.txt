@@ -1,2 +1,2 @@
-flywheel-sdk>=11.2.0
+flywheel-sdk~=12.0.0
 glob2
