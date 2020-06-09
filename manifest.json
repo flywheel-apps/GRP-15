@@ -7,12 +7,12 @@
   "license": "MIT",
   "source": "https://github.com/flywheel-apps/GRP-15",
   "url": "https://github.com/flywheel-apps/GRP-15",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "environment": {},
   "custom": {
     "gear-builder": {
       "category": "analysis",
-      "image": "flywheel/grp-15-project-settings:1.0.0"
+      "image": "flywheel/grp-15-project-settings:2.0.0"
     },
     "flywheel": {
       "suite": "Data Export"
